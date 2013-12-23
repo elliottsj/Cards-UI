@@ -24,9 +24,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     private final static int TYPE_REGULAR = 0;
     private final static int TYPE_NO_CONTENT = 1;
     private final static int TYPE_HEADER = 2;
-    private final static int TYPE_HEADER_CENTERED = 3;
-    private final static int TYPE_COMPRESSED = 4;
-    private final static int DEFAULT_TYPE_COUNT = 5;
+    private final static int DEFAULT_TYPE_COUNT = 3;
 
     private final static int POPUP_MENU_THEME = android.R.style.Theme_Holo_Light;
     private final Map<Integer, Integer> mViewTypes;
@@ -46,6 +44,8 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
         super(context);
         mAccentColor = context.getResources().getColor(android.R.color.black);
         mViewTypes = new HashMap<Integer, Integer>();
+        registerLayout(R.layout.list_item_header_centered);
+        registerLayout(R.layout.list_item_card_compressed);
     }
 
     /**
@@ -151,14 +151,10 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     @Override
     public final int getLayout(int index, int type) {
         CardBase card = getItem(index);
-        if (type == TYPE_HEADER)
-            return R.layout.list_item_header;
-        else if (type == TYPE_NO_CONTENT)
+        if (type == TYPE_NO_CONTENT)
             return mLayoutNoContent;
-        else if (type == TYPE_HEADER_CENTERED)
-            return R.layout.list_item_header_centered;
-        else if (type == TYPE_COMPRESSED)
-            return R.layout.list_item_card_compressed;
+        else if (type == TYPE_HEADER)
+            return R.layout.list_item_header;
         int layout = card.getLayout();
         if (layout <= 0) {
             // If no layout was specified for the individual card, use the adapter's set layout
@@ -260,8 +256,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
         if (item.getLayout() > 0) {
             if (mViewTypes.containsKey(item.getLayout()))
                 return mViewTypes.get(item.getLayout());
-            // Return the default if the layout is not registered
-            return TYPE_REGULAR;
+            throw new RuntimeException("The layout " + item.getLayout() + " is not registered.");
         } else {
             if (item.isHeader())
                 return TYPE_HEADER;
