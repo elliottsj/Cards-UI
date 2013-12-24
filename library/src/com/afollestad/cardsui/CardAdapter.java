@@ -256,6 +256,10 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
         if (item.getLayout() > 0) {
             if (mViewTypes.containsKey(item.getLayout()))
                 return mViewTypes.get(item.getLayout());
+            else if (mLayout == item.getLayout())
+                return TYPE_REGULAR;
+            else if (mLayoutNoContent == item.getLayout())
+                return TYPE_NO_CONTENT;
             throw new RuntimeException("The layout " + item.getLayout() + " is not registered.");
         } else {
             if (item.isHeader())
