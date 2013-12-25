@@ -26,6 +26,7 @@ public class LightItalicTextView extends TextView {
     }
 
     private void init(Context context) {
+        if (isInEditMode()) return;
         try {
             Typeface tf = Typeface.createFromAsset(context.getAssets(), "Roboto-LightItalic.ttf");
             setTypeface(tf);
