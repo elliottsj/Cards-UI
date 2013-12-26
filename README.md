@@ -18,7 +18,7 @@ To use this library with your Android apps, you have to reference this project a
 
 #### Importing as AAR (recommended)
 
-This process was written with the assumption that you are using Android Studio 0.2.11, gradle 1.8+, and you have recent Android Build Tools 18.0.1. Other versions may work with some adaptations.
+This process was written with the assumption that you are using Android Studio 0.4.0, gradle 1.9+, and you have recent Android Build Tools 18.0.1. Other versions may work with some adaptations.
 
 You do not need to open this library in Android Studio to build and include it in your project.
 
@@ -41,7 +41,7 @@ Uploaded 24K
 BUILD SUCCESSFUL
 ```
 
-If you are including Silk directly in your app:
+If you are including Cards UI directly in your app:
 * Find the `build.gradle` file used for your project application, which is usually either in the project root or in a subdirectory in the project root.
 * Add `mavenLocal()` to the `repositories` block and `compile 'com.afollestad.cardsui:library:1.0-SNAPSHOT` to the `dependencies` block. Your file will look something like this:
 
@@ -51,7 +51,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.7.+'
     }
 }
 apply plugin: 'android'
@@ -63,7 +63,7 @@ repositories {
 
 android {
     compileSdkVersion 18
-    buildToolsVersion "17.0.0"
+    buildToolsVersion "18.0.1"
 
     defaultConfig {
         minSdkVersion 15
@@ -76,7 +76,7 @@ dependencies {
 }
 
 ```
-* At the root of your project directory, run `./gradlew build`. You should see `:<ProjectName>:prepareComAfollestadSilkLibrary10SNAPSHOTLibrary` or something like it in the output and `BUILD SUCCESSFUL` at the end.
+* At the root of your project directory, run `./gradlew build`. You should see `:<ProjectName>:prepareComAfollestadCardsUILibrary10SNAPSHOTLibrary` or something like it in the output and `BUILD SUCCESSFUL` at the end.
 * You're done. You can now use Cards UI in your app.
 
 Tutorial
