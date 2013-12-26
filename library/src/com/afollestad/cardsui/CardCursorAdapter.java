@@ -1,9 +1,10 @@
 package com.afollestad.cardsui;
 
-import android.app.Activity;
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -24,6 +25,8 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
     private final static int TYPE_REGULAR = 0;
     private final static int TYPE_NO_CONTENT = 1;
     private final static int TYPE_HEADER = 2;
+    private final static int DEFAULT_TYPE_COUNT = 3;
+
     private final static int POPUP_MENU_THEME = android.R.style.Theme_Holo_Light;
     private final Map<Integer, Integer> mViewTypes;
     protected int mAccentColor;
@@ -38,10 +41,12 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
      *
      * @param context The context used to inflate layouts and retrieve resources.
      */
-    public CardCursorAdapter(Activity context, Class<ItemType> cls) {
+    public CardCursorAdapter(Context context, Class<? extends SilkCursorItem> cls) {
         super(context, cls);
         mAccentColor = context.getResources().getColor(android.R.color.black);
         mViewTypes = new HashMap<Integer, Integer>();
+        registerLayout(R.layout.list_item_header_centered);
+        registerLayout(R.layout.list_item_card_compressed);
     }
 
     /**
@@ -51,10 +56,8 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
      * @param cardLayoutRes Sets a custom layout to be used for all cards (not including headers) in the adapter.
      *                      This <b>does not</b> override layouts set to individual cards.
      */
-    public CardCursorAdapter(Activity context, Class<ItemType> cls, int cardLayoutRes) {
-        super(context, cls);
-        mAccentColor = context.getResources().getColor(android.R.color.black);
-        mViewTypes = new HashMap<Integer, Integer>();
+    public CardCursorAdapter(Context context, Class<? extends SilkCursorItem> cls, int cardLayoutRes) {
+        this(context, cls);
         mLayout = cardLayoutRes;
     }
 
@@ -67,9 +70,25 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
      * @param cardLayoutNoContentRes Sets a custom layout to be used for all cards (not including headers) in the
      *                               adapter with null content. This <b>does not</b> override layouts set to individual cards.
      */
-    public CardCursorAdapter(Activity context, Class<ItemType> cls, int cardLayoutRes, int cardLayoutNoContentRes) {
+    public CardCursorAdapter(Context context, Class<? extends SilkCursorItem> cls, int cardLayoutRes, int cardLayoutNoContentRes) {
         this(context, cls, cardLayoutRes);
         mLayoutNoContent = cardLayoutNoContentRes;
+    }
+
+    public static void setupTouchDelegate(Context context, final View menu) {
+        final int offset = context.getResources().getDimensionPixelSize(R.dimen.card_action_touchdelegate);
+        ((View) menu.getParent()).post(new Runnable() {
+            public void run() {
+                Rect delegateArea = new Rect();
+                menu.getHitRect(delegateArea);
+                delegateArea.top -= offset;
+                delegateArea.bottom += offset;
+                delegateArea.left -= offset;
+                delegateArea.right += offset;
+                TouchDelegate expandedArea = new TouchDelegate(delegateArea, menu);
+                ((View) menu.getParent()).setTouchDelegate(expandedArea);
+            }
+        });
     }
 
     @Override
@@ -79,10 +98,6 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
         if (item.isHeader())
             return item.getActionCallback() != null;
         return item.isClickable();
-    }
-
-    protected Card.CardMenuListener<ItemType> getMenuListener() {
-        return mPopupListener;
     }
 
     /**
@@ -120,6 +135,10 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
         return this;
     }
 
+    protected Card.CardMenuListener<ItemType> getMenuListener() {
+        return mPopupListener;
+    }
+
     /**
      * Sets whether or not cards in the adapter are clickable, setting it to false will turn card's list selectors off
      * and the list's OnItemClickListener will not be called. This <b>will</b> override individual isClickable values
@@ -131,17 +150,12 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
     }
 
     @Override
-    public Object getItemId(ItemType item) {
-        return item.getSilkId();
-    }
-
-    @Override
-    public int getLayout(int index, int type) {
+    public final int getLayout(int index, int type) {
         CardBase card = getItem(index);
-        if (type == TYPE_HEADER)
-            return mLayout;
-        else if (type == TYPE_NO_CONTENT)
+        if (type == TYPE_NO_CONTENT)
             return mLayoutNoContent;
+        else if (type == TYPE_HEADER)
+            return R.layout.list_item_header;
         int layout = card.getLayout();
         if (layout <= 0) {
             // If no layout was specified for the individual card, use the adapter's set layout
@@ -217,9 +231,14 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
     }
 
     @Override
+    public Object getItemId(ItemType item) {
+        return item.getSilkId();
+    }
+
+    @Override
     public final int getViewTypeCount() {
-        // There's 3 layout types by default: cards, cards with no content, and card headers.
-        return mViewTypes.size() + 3;
+        // 5 layout types by default (see constants on the top)
+        return mViewTypes.size() + DEFAULT_TYPE_COUNT;
     }
 
     /**
@@ -228,7 +247,7 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
      * This must be used if you override getLayout() and specify custom layouts for certain list items.
      */
     public final CardCursorAdapter<ItemType> registerLayout(int layoutRes) {
-        mViewTypes.put(layoutRes, mViewTypes.size() + 3);
+        mViewTypes.put(layoutRes, mViewTypes.size() + DEFAULT_TYPE_COUNT);
         return this;
     }
 
@@ -238,8 +257,11 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
         if (item.getLayout() > 0) {
             if (mViewTypes.containsKey(item.getLayout()))
                 return mViewTypes.get(item.getLayout());
-            // Return the default if the layout is not registered
-            return TYPE_REGULAR;
+            else if (mLayout == item.getLayout())
+                return TYPE_REGULAR;
+            else if (mLayoutNoContent == item.getLayout())
+                return TYPE_NO_CONTENT;
+            throw new RuntimeException("The layout " + item.getLayout() + " is not registered.");
         } else {
             if (item.isHeader())
                 return TYPE_HEADER;
@@ -279,7 +301,7 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
             // No menu for the adapter or the card
             return false;
         }
-        CardAdapter.setupTouchDelegate(getContext(), view);
+        setupTouchDelegate(getContext(), view);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
