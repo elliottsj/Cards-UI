@@ -34,6 +34,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     private boolean mCardsClickable = true;
     private int mLayout = R.layout.list_item_card;
     private int mLayoutNoContent = R.layout.list_item_card_nocontent;
+    private final int mLayoutHeader = R.layout.list_item_header;
 
     /**
      * Initializes a new CardAdapter instance.
@@ -236,7 +237,6 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
 
     @Override
     public final int getViewTypeCount() {
-        // 5 layout types by default (see constants on the top)
         return mViewTypes.size() + DEFAULT_TYPE_COUNT;
     }
 
@@ -260,7 +260,10 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
                 return TYPE_REGULAR;
             else if (mLayoutNoContent == item.getLayout())
                 return TYPE_NO_CONTENT;
-            throw new RuntimeException("The layout " + item.getLayout() + " is not registered.");
+            else if (mLayoutHeader == item.getLayout())
+                return TYPE_HEADER;
+            String name = getContext().getResources().getResourceName(item.getLayout());
+            throw new RuntimeException("The layout " + name + " is not registered.");
         } else {
             if (item.isHeader())
                 return TYPE_HEADER;
