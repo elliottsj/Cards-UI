@@ -145,7 +145,7 @@ public class CardCursorAdapter<ItemType extends CardBase<ItemType> & SilkCursorI
         int layout = card.getLayout();
         if (layout <= 0) {
             // If no layout was specified for the individual card, use the adapter's set layout
-            layout = getLayout(index, type);
+            layout = mLayout;
         }
         return layout;
     }
