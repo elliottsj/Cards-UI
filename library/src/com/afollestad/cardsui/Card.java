@@ -19,7 +19,7 @@ public class Card implements CardBase<Card> {
     private boolean isHeader;
     private int mPopupMenu;
     private CardMenuListener<Card> mPopupListener;
-    private boolean isClickable;
+    private boolean isClickable = true;
     private Object mTag;
     private Drawable mThumbnail;
     private int mLayout;
@@ -33,7 +33,6 @@ public class Card implements CardBase<Card> {
     }
 
     public Card(String title) {
-        this.isClickable = true;
         this.title = title;
     }
 
