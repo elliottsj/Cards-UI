@@ -246,6 +246,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
      * This must be used if you override getLayout() and specify custom layouts for certain list items.
      */
     public final CardAdapter<ItemType> registerLayout(int layoutRes) {
+        if (layoutRes == mLayout || layoutRes == mLayoutNoContent || layoutRes == mLayoutHeader) return this;
         mViewTypes.put(layoutRes, mViewTypes.size() + DEFAULT_TYPE_COUNT);
         return this;
     }
