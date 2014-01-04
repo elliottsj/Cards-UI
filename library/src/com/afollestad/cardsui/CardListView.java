@@ -132,7 +132,6 @@ public class CardListView extends ListView implements AdapterView.OnItemClickLis
         } else {
             if (mItemClickListener != null) mItemClickListener.onItemClick(parent, view, position, id);
             if (mCardClickListener != null) mCardClickListener.onCardClick(position, item, view);
-            if (mCardLongClickListener != null) mCardLongClickListener.onCardLongClick(position, item, view);
         }
     }
 
