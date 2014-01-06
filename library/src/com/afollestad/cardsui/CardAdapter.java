@@ -2,6 +2,7 @@ package com.afollestad.cardsui;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.util.SparseIntArray;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.TouchDelegate;
@@ -10,9 +11,6 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import com.afollestad.silk.adapters.SilkAdapter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A {@link SilkAdapter} that displays {@link Card} and {@link CardHeader} objects in a {@link CardListView}.
@@ -27,7 +25,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     private final static int DEFAULT_TYPE_COUNT = 3;
 
     private final static int POPUP_MENU_THEME = android.R.style.Theme_Holo_Light;
-    private final Map<Integer, Integer> mViewTypes;
+    private final SparseIntArray mViewTypes;
     protected int mAccentColor;
     private int mPopupMenu = -1;
     private Card.CardMenuListener<ItemType> mPopupListener;
@@ -44,7 +42,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     public CardAdapter(Context context) {
         super(context);
         mAccentColor = context.getResources().getColor(android.R.color.black);
-        mViewTypes = new HashMap<Integer, Integer>();
+        mViewTypes = new SparseIntArray();
         registerLayout(R.layout.list_item_header_centered);
         registerLayout(R.layout.list_item_card_compressed);
     }
@@ -77,6 +75,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
 
     public static void setupTouchDelegate(Context context, final View menu) {
         final int offset = context.getResources().getDimensionPixelSize(R.dimen.card_action_touchdelegate);
+        assert menu.getParent() != null;
         ((View) menu.getParent()).post(new Runnable() {
             public void run() {
                 Rect delegateArea = new Rect();
@@ -255,7 +254,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     public final int getItemViewType(int position) {
         CardBase item = getItem(position);
         if (item.getLayout() > 0) {
-            if (mViewTypes.containsKey(item.getLayout()))
+            if (mViewTypes.get(item.getLayout()) != 0)
                 return mViewTypes.get(item.getLayout());
             else if (mLayout == item.getLayout())
                 return TYPE_REGULAR;
