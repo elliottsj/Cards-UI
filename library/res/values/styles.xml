@@ -95,6 +95,7 @@
         <item name="android:layout_toRightOf">@android:id/icon</item>
         <item name="android:layout_marginLeft">@dimen/card_title_margin_left</item>
         <item name="android:layout_marginRight">@dimen/card_title_margin_left</item>
+        <item name="android:maxLines">@integer/card_content_maxlines</item>
     </style>
 
     <style name="card_header_outer">
