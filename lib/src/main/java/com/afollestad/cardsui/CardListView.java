@@ -92,7 +92,7 @@ public class CardListView extends ListView implements AdapterView.OnItemClickLis
     }
 
     /**
-     * @deprecated Use {@link #setOnCardClickListener(com.afollestad.cardsui.CardListView.CardClickListener)} instead.
+     * @deprecated Use {@link #setOnCardClickListener(CardListView.CardClickListener)} instead.
      */
     @Override
     public final void setOnItemClickListener(OnItemClickListener listener) {
@@ -100,7 +100,7 @@ public class CardListView extends ListView implements AdapterView.OnItemClickLis
     }
 
     /**
-     * @deprecated Use {@link #setOnCardLongClickListener(com.afollestad.cardsui.CardListView.CardLongClickListener)} instead.
+     * @deprecated Use {@link #setOnCardLongClickListener(CardListView.CardLongClickListener)} instead.
      */
     @Override
     public final void setOnItemLongClickListener(OnItemLongClickListener listener) {

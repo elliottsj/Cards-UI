@@ -16,7 +16,7 @@
 
         </RelativeLayout>
 
-        <com.afollestad.silk.views.text.SilkTextView android:id="@android:id/content" style="@style/card_content"/>
+        <TextView android:id="@android:id/content" style="@style/card_content"/>
 
     </RelativeLayout>
 

@@ -1,22 +1,20 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
 
-  dependencies {
-    classpath 'com.android.tools.build:gradle:0.7.+'
-  }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.9.+'
+    }
 }
 
 allprojects {
-  group = 'com.afollestad.cardsui'
-  version = '1.0-SNAPSHOT'
+    group = 'com.afollestad.cardsui'
+    version = '1.0-SNAPSHOT'
 
-  repositories {
-    mavenCentral()
-  }
-
-  tasks.withType(Compile) {
-    options.encoding = "UTF-8"
-  }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 }

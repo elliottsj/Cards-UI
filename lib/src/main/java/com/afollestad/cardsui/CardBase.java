@@ -1,6 +1,7 @@
 package com.afollestad.cardsui;
 
 import android.graphics.drawable.Drawable;
+
 import com.afollestad.silk.caching.SilkComparable;
 
 /**
@@ -29,4 +30,5 @@ public interface CardBase<ItemType> extends SilkComparable<ItemType> {
     public abstract int getLayout();
 
     public abstract Object getTag();
+
 }
