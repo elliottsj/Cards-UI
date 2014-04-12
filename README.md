@@ -1,7 +1,7 @@
 Welcome
 =============
 
-![Screenshot](https://raw.github.com/afollestad/Cards-UI/master/images/device-2013-08-15-121417_framed.png)
+![Screenshot](https://raw.githubusercontent.com/elliottsj/Cards-UI/master/images/device-2013-08-15-121417_framed.png)
 
 Dependencies
 =============
