@@ -90,6 +90,7 @@
     <style name="card_content">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:textSize">@dimen/card_content</item>
         <item name="android:layout_below">@+id/titleFrame</item>
         <item name="android:layout_toRightOf">@android:id/icon</item>
@@ -122,6 +123,8 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/card_header</item>
         <item name="android:textColor">@android:color/black</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textStyle">italic</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -130,6 +133,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/card_subheader</item>
+        <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:visibility">gone</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:singleLine">true</item>

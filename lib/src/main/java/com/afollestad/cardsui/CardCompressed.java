@@ -7,6 +7,7 @@ import android.content.Context;
  *
  * @author Aidan Follestad (afollestad)
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CardCompressed extends Card {
 
     public CardCompressed(String title, String content) {

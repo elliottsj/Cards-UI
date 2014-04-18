@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
  *
  * @author Aidan Follestad (afollestad)
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CardHeader extends Card {
 
     private String mActionTitle;
@@ -101,4 +102,5 @@ public class CardHeader extends Card {
     public interface ActionListener {
         public void onClick(CardHeader header);
     }
+
 }

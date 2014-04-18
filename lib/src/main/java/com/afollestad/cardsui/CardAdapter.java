@@ -3,36 +3,43 @@ package com.afollestad.cardsui;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.SparseIntArray;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.TouchDelegate;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-import com.afollestad.silk.adapters.SilkAdapter;
 
 /**
- * A {@link SilkAdapter} that displays {@link Card} and {@link CardHeader} objects in a {@link CardListView}.
- *
- * @author Aidan Follestad (afollestad)
- */
-public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapter<ItemType> {
+* A list adapter that displays {@link Card} and {@link CardHeader} objects in a {@link CardListView}.
+*
+* @author Aidan Follestad (afollestad)
+*/
+@SuppressWarnings("UnusedDeclaration")
+public class CardAdapter<ItemType extends CardBase> extends ArrayAdapter<ItemType> {
 
-    private final static int TYPE_REGULAR = 0;
-    private final static int TYPE_NO_CONTENT = 1;
-    private final static int TYPE_HEADER = 2;
-    private final static int DEFAULT_TYPE_COUNT = 3;
+    private static class CardType {
+        public static final int REGULAR = 0;
+        public static final int NO_CONTENT = 1;
+        public static final int HEADER = 2;
 
+        public static final int DEFAULT_COUNT = 3;
+    }
+
+    private LayoutInflater mInflater;
     private final static int POPUP_MENU_THEME = android.R.style.Theme_Holo_Light;
     private final SparseIntArray mViewTypes;
-    protected int mAccentColor;
+    private int mAccentColor;
     private int mPopupMenu = -1;
     private Card.CardMenuListener<ItemType> mPopupListener;
     private boolean mCardsClickable = true;
-    private int mLayout = R.layout.list_item_card;
-    private int mLayoutNoContent = R.layout.list_item_card_nocontent;
-    private final int mLayoutHeader = R.layout.list_item_header;
+    private int mLayout;
+    private int mLayoutNoContent;
+    private final int mLayoutHeader;
 
     /**
      * Initializes a new CardAdapter instance.
@@ -40,11 +47,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
      * @param context The context used to inflate layouts and retrieve resources.
      */
     public CardAdapter(Context context) {
-        super(context);
-        mAccentColor = context.getResources().getColor(android.R.color.black);
-        mViewTypes = new SparseIntArray();
-        registerLayout(R.layout.list_item_header_centered);
-        registerLayout(R.layout.list_item_card_compressed);
+        this(context, R.layout.list_item_card, R.layout.list_item_card_nocontent);
     }
 
     /**
@@ -55,8 +58,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
      *                      This <b>does not</b> override layouts set to individual cards.
      */
     public CardAdapter(Context context, int cardLayoutRes) {
-        this(context);
-        mLayout = cardLayoutRes;
+        this(context, cardLayoutRes, R.layout.list_item_card_nocontent);
     }
 
     /**
@@ -69,34 +71,125 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
      *                               adapter with null content. This <b>does not</b> override layouts set to individual cards.
      */
     public CardAdapter(Context context, int cardLayoutRes, int cardLayoutNoContentRes) {
-        this(context, cardLayoutRes);
+        super(context, 0);
+        mInflater = LayoutInflater.from(context);
+        mAccentColor = context.getResources().getColor(android.R.color.black);
+        mViewTypes = new SparseIntArray();
+        mLayout = cardLayoutRes;
         mLayoutNoContent = cardLayoutNoContentRes;
-    }
-
-    public static void setupTouchDelegate(Context context, final View menu) {
-        final int offset = context.getResources().getDimensionPixelSize(R.dimen.card_action_touchdelegate);
-        assert menu.getParent() != null;
-        ((View) menu.getParent()).post(new Runnable() {
-            public void run() {
-                Rect delegateArea = new Rect();
-                menu.getHitRect(delegateArea);
-                delegateArea.top -= offset;
-                delegateArea.bottom += offset;
-                delegateArea.left -= offset;
-                delegateArea.right += offset;
-                TouchDelegate expandedArea = new TouchDelegate(delegateArea, menu);
-                ((View) menu.getParent()).setTouchDelegate(expandedArea);
-            }
-        });
+        mLayoutHeader = R.layout.list_item_header;
+        registerLayout(R.layout.list_item_header_centered);
+        registerLayout(R.layout.list_item_card_compressed);
     }
 
     @Override
     public final boolean isEnabled(int position) {
         ItemType item = getItem(position);
-        if (!mCardsClickable && !item.isHeader()) return false;
+        if (!mCardsClickable && !item.isHeader())
+            return false;
         if (item.isHeader())
             return item.getActionCallback() != null;
         return item.isClickable();
+    }
+
+    @Override
+    public final int getViewTypeCount() {
+        return CardType.DEFAULT_COUNT + mViewTypes.size();
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View view;
+        ItemType item = getItem(position);
+        int itemLayout = item.getLayout();
+
+        if (convertView == null) {
+            view = mInflater.inflate(itemLayout > 0 ? itemLayout : item.isHeader() ? mLayoutHeader : mLayout, null);
+        } else {
+            view = convertView;
+        }
+
+        if (item.isHeader()) {
+            bindHeader(item, view);
+            return view;
+        } else {
+            bindCard(item, view);
+            invalidatePadding(position, view);
+            return view;
+        }
+    }
+
+    private void bindHeader(ItemType header, View view) {
+        TextView title = (TextView) view.findViewById(android.R.id.title);
+        if (title == null)
+            throw new RuntimeException("Your header layout must contain a TextView with the ID @android:id/title.");
+        TextView subtitle = (TextView) view.findViewById(android.R.id.content);
+        if (subtitle == null)
+            throw new RuntimeException("Your header layout must contain a TextView with the ID @android:id/content.");
+        title.setText(header.getTitle());
+        if (header.getContent() != null && !header.getContent().trim().isEmpty()) {
+            subtitle.setVisibility(View.VISIBLE);
+            subtitle.setText(header.getContent());
+        } else subtitle.setVisibility(View.GONE);
+        TextView button = (TextView) view.findViewById(android.R.id.button1);
+        if (button == null)
+            throw new RuntimeException("The header layout must contain a TextView with the ID @android:id/button1.");
+        if (header.getActionCallback() != null) {
+            button.setVisibility(View.VISIBLE);
+            button.setBackgroundColor(mAccentColor);
+            String titleTxt = header.getActionTitle();
+            if (header.getActionTitle() == null || header.getActionTitle().trim().isEmpty())
+                titleTxt = getContext().getString(R.string.see_more);
+            button.setText(titleTxt);
+        } else
+            button.setVisibility(View.GONE);
+    }
+
+    private void bindCard(ItemType item, View view) {
+        TextView title = (TextView) view.findViewById(android.R.id.title);
+        if (title != null) onProcessTitle(title, item, mAccentColor);
+        TextView content = (TextView) view.findViewById(android.R.id.content);
+        if (content != null) onProcessContent(content, item);
+        ImageView icon = (ImageView) view.findViewById(android.R.id.icon);
+        if (icon != null) {
+            if (onProcessThumbnail(icon, item)) {
+                icon.setVisibility(View.VISIBLE);
+            } else {
+                icon.setVisibility(View.GONE);
+            }
+        }
+        View menu = view.findViewById(android.R.id.button1);
+        if (menu != null) {
+            if (onProcessMenu(menu, item)) {
+                menu.setVisibility(View.VISIBLE);
+            } else {
+                menu.setOnClickListener(null);
+                menu.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    @Override
+    public final int getItemViewType(int position) {
+        CardBase item = getItem(position);
+        if (item.getLayout() > 0) {
+            if (mViewTypes.get(item.getLayout()) != 0)
+                return mViewTypes.get(item.getLayout());
+            else if (mLayout == item.getLayout())
+                return CardType.REGULAR;
+            else if (mLayoutNoContent == item.getLayout())
+                return CardType.NO_CONTENT;
+            else if (mLayoutHeader == item.getLayout())
+                return CardType.HEADER;
+            String name = getContext().getResources().getResourceName(item.getLayout());
+            throw new RuntimeException("The layout " + name + " is not registered.");
+        } else {
+            if (item.isHeader())
+                return CardType.HEADER;
+            else if ((item.getContent() == null || item.getContent().trim().isEmpty()))
+                return CardType.NO_CONTENT;
+            else return CardType.REGULAR;
+        }
     }
 
     /**
@@ -148,95 +241,13 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
         return this;
     }
 
-    @Override
-    public final int getLayout(int index, int type) {
-        CardBase card = getItem(index);
-        if (type == TYPE_NO_CONTENT)
-            return mLayoutNoContent;
-        else if (type == TYPE_HEADER)
-            return R.layout.list_item_header;
-        int layout = card.getLayout();
-        if (layout <= 0) {
-            // If no layout was specified for the individual card, use the adapter's set layout
-            layout = mLayout;
-        }
-        return layout;
-    }
-
-    private void setupHeader(ItemType header, View view) {
-        TextView title = (TextView) view.findViewById(android.R.id.title);
-        if (title == null)
-            throw new RuntimeException("Your header layout must contain a TextView with the ID @android:id/title.");
-        TextView subtitle = (TextView) view.findViewById(android.R.id.content);
-        if (subtitle == null)
-            throw new RuntimeException("Your header layout must contain a TextView with the ID @android:id/content.");
-        title.setText(header.getTitle());
-        if (header.getContent() != null && !header.getContent().trim().isEmpty()) {
-            subtitle.setVisibility(View.VISIBLE);
-            subtitle.setText(header.getContent());
-        } else subtitle.setVisibility(View.GONE);
-        TextView button = (TextView) view.findViewById(android.R.id.button1);
-        if (button == null)
-            throw new RuntimeException("The header layout must contain a TextView with the ID @android:id/button1.");
-        if (header.getActionCallback() != null) {
-            button.setVisibility(View.VISIBLE);
-            button.setBackgroundColor(mAccentColor);
-            String titleTxt = header.getActionTitle();
-            if (header.getActionTitle() == null || header.getActionTitle().trim().isEmpty())
-                titleTxt = getContext().getString(R.string.see_more);
-            button.setText(titleTxt);
-        } else button.setVisibility(View.GONE);
-    }
-
     private void invalidatePadding(int index, View view) {
-        int top = index == 0 ? R.dimen.card_outer_padding_firstlast : R.dimen.card_outer_padding_top;
+        int top = (index == 0 ? R.dimen.card_outer_padding_firstlast : R.dimen.card_outer_padding_top);
         int bottom = index == (getCount() - 1) ? R.dimen.card_outer_padding_firstlast : R.dimen.card_outer_padding_bottom;
         view.setPadding(view.getPaddingLeft(),
                 getContext().getResources().getDimensionPixelSize(top),
                 view.getPaddingRight(),
                 getContext().getResources().getDimensionPixelSize(bottom));
-    }
-
-    @Override
-    public View onViewCreated(int index, View recycled, ItemType item) {
-        if (item.isHeader()) {
-            setupHeader(item, recycled);
-            return recycled;
-        }
-
-        TextView title = (TextView) recycled.findViewById(android.R.id.title);
-        if (title != null) onProcessTitle(title, item, mAccentColor);
-        TextView content = (TextView) recycled.findViewById(android.R.id.content);
-        if (content != null) onProcessContent(content, item);
-        ImageView icon = (ImageView) recycled.findViewById(android.R.id.icon);
-        if (icon != null) {
-            if (onProcessThumbnail(icon, item)) {
-                icon.setVisibility(View.VISIBLE);
-            } else {
-                icon.setVisibility(View.GONE);
-            }
-        }
-        View menu = recycled.findViewById(android.R.id.button1);
-        if (menu != null) {
-            if (onProcessMenu(menu, item)) {
-                menu.setVisibility(View.VISIBLE);
-            } else {
-                menu.setOnClickListener(null);
-                menu.setVisibility(View.INVISIBLE);
-            }
-        }
-        invalidatePadding(index, recycled);
-        return recycled;
-    }
-
-    @Override
-    public Object getItemId(ItemType item) {
-        return item.getSilkId();
-    }
-
-    @Override
-    public final int getViewTypeCount() {
-        return mViewTypes.size() + DEFAULT_TYPE_COUNT;
     }
 
     /**
@@ -246,31 +257,8 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
      */
     public final CardAdapter<ItemType> registerLayout(int layoutRes) {
         if (layoutRes == mLayout || layoutRes == mLayoutNoContent || layoutRes == mLayoutHeader) return this;
-        mViewTypes.put(layoutRes, mViewTypes.size() + DEFAULT_TYPE_COUNT);
+        mViewTypes.put(layoutRes, CardType.DEFAULT_COUNT + mViewTypes.size());
         return this;
-    }
-
-    @Override
-    public final int getItemViewType(int position) {
-        CardBase item = getItem(position);
-        if (item.getLayout() > 0) {
-            if (mViewTypes.get(item.getLayout()) != 0)
-                return mViewTypes.get(item.getLayout());
-            else if (mLayout == item.getLayout())
-                return TYPE_REGULAR;
-            else if (mLayoutNoContent == item.getLayout())
-                return TYPE_NO_CONTENT;
-            else if (mLayoutHeader == item.getLayout())
-                return TYPE_HEADER;
-            String name = getContext().getResources().getResourceName(item.getLayout());
-            throw new RuntimeException("The layout " + name + " is not registered.");
-        } else {
-            if (item.isHeader())
-                return TYPE_HEADER;
-            else if ((item.getContent() == null || item.getContent().trim().isEmpty()))
-                return TYPE_NO_CONTENT;
-            else return TYPE_REGULAR;
-        }
     }
 
     protected boolean onProcessTitle(TextView title, ItemType card, int accentColor) {
@@ -288,8 +276,9 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
     }
 
     protected boolean onProcessContent(TextView content, ItemType card) {
+        if (content == null) return false;
         content.setText(card.getContent());
-        return false;
+        return true;
     }
 
     protected boolean onProcessMenu(final View view, final ItemType card) {
@@ -303,7 +292,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
             // No menu for the adapter or the card
             return false;
         }
-        setupTouchDelegate(getContext(), view);
+        CardAdapter.setupTouchDelegate(getContext(), view);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -320,6 +309,7 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
                     public boolean onMenuItemClick(MenuItem item) {
                         if (card.getPopupMenu() > 0 && card.getPopupListener() != null) {
                             // This individual card has it unique menu
+                            //noinspection unchecked
                             card.getPopupListener().onMenuItemClick(card, item);
                         } else if (mPopupListener != null) {
                             // The card does not have a unique menu, use the adapter's default
@@ -332,5 +322,22 @@ public class CardAdapter<ItemType extends CardBase<ItemType>> extends SilkAdapte
             }
         });
         return true;
+    }
+
+    public static void setupTouchDelegate(Context context, final View menu) {
+        final int offset = context.getResources().getDimensionPixelSize(R.dimen.card_action_touchdelegate);
+        assert menu.getParent() != null;
+        ((View) menu.getParent()).post(new Runnable() {
+            public void run() {
+                Rect delegateArea = new Rect();
+                menu.getHitRect(delegateArea);
+                delegateArea.top -= offset;
+                delegateArea.bottom += offset;
+                delegateArea.left -= offset;
+                delegateArea.right += offset;
+                TouchDelegate expandedArea = new TouchDelegate(delegateArea, menu);
+                ((View) menu.getParent()).setTouchDelegate(expandedArea);
+            }
+        });
     }
 }

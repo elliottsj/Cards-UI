@@ -4,14 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.MenuItem;
 
 /**
  * Represents a single card displayed in a {@link CardAdapter}.
  *
  * @author Aidan Follestad (afollestad)
  */
-public class Card implements CardBase<Card> {
+@SuppressWarnings("UnusedDeclaration")
+public class Card implements CardBase {
 
     private static final long serialVersionUID = 7548618898682727465L;
     private String title;
@@ -20,9 +20,8 @@ public class Card implements CardBase<Card> {
     private int mPopupMenu;
     private CardMenuListener<Card> mPopupListener;
     private boolean isClickable = true;
-    private Object mTag;
     private Drawable mThumbnail;
-    private int mLayout;
+    private int mLayout = 0;
 
     protected Card() {
     }
@@ -58,29 +57,34 @@ public class Card implements CardBase<Card> {
     }
 
     @Override
-    public Object getSilkId() {
-        return isHeader() + ":" + getTitle() + ":" + getContent();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Card card = (Card) o;
+
+        if (isHeader != card.isHeader) return false;
+        if (mLayout != card.mLayout) return false;
+        if (mPopupMenu != card.mPopupMenu) return false;
+        if (content != null ? !content.equals(card.content) : card.content != null) return false;
+        if (title != null ? !title.equals(card.title) : card.title != null) return false;
+        if (mThumbnail != null) {
+            Bitmap one = ((BitmapDrawable) mThumbnail).getBitmap();
+            Bitmap two = ((BitmapDrawable) card.getThumbnail()).getBitmap();
+            if (!one.sameAs(two)) return false;
+        } else if (card.getThumbnail() != null) return false;
+
+        return true;
     }
 
     @Override
-    public boolean equalTo(Card other) {
-        boolean equal = getTitle().equals(other.getTitle()) &&
-                isHeader() == other.isHeader() &&
-                getPopupMenu() == other.getPopupMenu() &&
-                getLayout() == other.getLayout();
-        if (getContent() != null) {
-            equal = equal && getContent().equals(other.getContent());
-        } else {
-            equal = equal && other.getContent() == null;
-        }
-        if (getThumbnail() != null) {
-            Bitmap one = ((BitmapDrawable) getThumbnail()).getBitmap();
-            Bitmap two = ((BitmapDrawable) other.getThumbnail()).getBitmap();
-            equal = equal && one.sameAs(two);
-        } else {
-            equal = equal && other.getThumbnail() == null;
-        }
-        return equal;
+    public int hashCode() {
+        int result = title != null ? title.hashCode() : 0;
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        result = 31 * result + (isHeader ? 1 : 0);
+        result = 31 * result + mPopupMenu;
+        result = 31 * result + mLayout;
+        return result;
     }
 
     @Override
@@ -115,19 +119,6 @@ public class Card implements CardBase<Card> {
     }
 
     @Override
-    public Object getTag() {
-        return mTag;
-    }
-
-    /**
-     * Sets a tag of any type that can be used to keep track of cards.
-     */
-    public Card setTag(Object tag) {
-        mTag = tag;
-        return this;
-    }
-
-    @Override
     public int getPopupMenu() {
         return mPopupMenu;
     }
@@ -143,7 +134,7 @@ public class Card implements CardBase<Card> {
     }
 
     @Override
-    public CardMenuListener getPopupListener() {
+    public CardMenuListener<Card> getPopupListener() {
         return mPopupListener;
     }
 
@@ -215,7 +206,4 @@ public class Card implements CardBase<Card> {
         return this;
     }
 
-    public interface CardMenuListener<ItemType> {
-        public void onMenuItemClick(ItemType card, MenuItem item);
-    }
 }

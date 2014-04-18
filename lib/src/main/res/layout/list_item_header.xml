@@ -3,14 +3,15 @@
 
     <LinearLayout style="@style/card_header_inner">
 
-        <main.src.com.afollestad.cardsui.LightItalicTextView
-            android:id="@android:id/title" style="@style/card_header_title"/>
+        <TextView android:id="@android:id/title"
+                  style="@style/card_header_title"/>
 
-        <com.afollestad.silk.views.text.SilkTextView android:id="@android:id/content"
-                                                     style="@style/card_header_summary"/>
+        <TextView android:id="@android:id/content"
+                  style="@style/card_header_summary"/>
 
     </LinearLayout>
 
-    <TextView android:id="@android:id/button1" style="@style/header_button"/>
+    <TextView android:id="@android:id/button1"
+              style="@style/header_button"/>
 
 </RelativeLayout>

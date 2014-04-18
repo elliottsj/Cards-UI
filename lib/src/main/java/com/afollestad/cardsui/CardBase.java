@@ -1,13 +1,12 @@
 package com.afollestad.cardsui;
 
 import android.graphics.drawable.Drawable;
-
-import com.afollestad.silk.caching.SilkComparable;
+import android.view.MenuItem;
 
 /**
  * @author Aidan Follestad (afollestad)
  */
-public interface CardBase<ItemType> extends SilkComparable<ItemType> {
+public interface CardBase {
 
     public abstract String getTitle();
 
@@ -23,12 +22,14 @@ public interface CardBase<ItemType> extends SilkComparable<ItemType> {
 
     public String getActionTitle();
 
-    public abstract Card.CardMenuListener<ItemType> getPopupListener();
+    public abstract CardMenuListener getPopupListener();
 
     public abstract Drawable getThumbnail();
 
     public abstract int getLayout();
 
-    public abstract Object getTag();
+    public interface CardMenuListener<ItemType extends CardBase> {
+        public void onMenuItemClick(ItemType card, MenuItem item);
+    }
 
 }

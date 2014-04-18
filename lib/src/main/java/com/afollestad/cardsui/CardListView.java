@@ -1,6 +1,7 @@
 package com.afollestad.cardsui;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.ListView;
  *
  * @author Aidan Follestad (afollestad)
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CardListView extends ListView implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     private OnItemClickListener mItemClickListener;
@@ -44,7 +46,12 @@ public class CardListView extends ListView implements AdapterView.OnItemClickLis
         super.setOnItemLongClickListener(this);
 
         if (attrs != null) {
-            TypedArray a = getContext().obtainStyledAttributes(attrs, new int[]{android.R.attr.background});
+            Context context = getContext();
+            if (context == null)
+                return;
+            TypedArray a = context.obtainStyledAttributes(attrs, new int[]{android.R.attr.background});
+            if (a == null)
+                return;
             if (a.length() > 0) {
                 int color = a.getColor(0, 0);
                 if (color == 0) setDefaultBackground();
@@ -57,9 +64,12 @@ public class CardListView extends ListView implements AdapterView.OnItemClickLis
     }
 
     private void setDefaultBackground() {
-        int gray = getResources().getColor(R.color.card_gray);
-        setBackgroundColor(gray);
-        setCacheColorHint(gray);
+        Resources resources = getResources();
+        if (resources != null) {
+            int gray = resources.getColor(R.color.card_gray);
+            setBackgroundColor(gray);
+            setCacheColorHint(gray);
+        }
     }
 
     /**
@@ -67,14 +77,10 @@ public class CardListView extends ListView implements AdapterView.OnItemClickLis
      */
     @Override
     public void setAdapter(ListAdapter adapter) {
-        if (adapter instanceof CardAdapter) {
+        if (adapter instanceof CardAdapter)
             setAdapter((CardAdapter) adapter);
-            return;
-        } else if (adapter instanceof CardCursorAdapter) {
-            setAdapter((CardCursorAdapter) adapter);
-            return;
-        }
-        throw new RuntimeException("The CardListView only accepts CardAdapters.");
+        else
+            throw new RuntimeException("The CardListView only accepts CardAdapters.");
     }
 
     /**

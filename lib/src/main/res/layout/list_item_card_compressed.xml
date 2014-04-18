@@ -6,10 +6,10 @@
 
         <TextView android:id="@android:id/title" style="@style/card_title"/>
 
-        <com.afollestad.silk.views.text.SilkTextView android:id="@android:id/content"
-                                                     style="@style/card_content"
-                                                     android:layout_alignParentRight="true"
-                                                     android:maxLines="1"/>
+        <TextView android:id="@android:id/content"
+                  style="@style/card_content"
+                  android:layout_alignParentRight="true"
+                  android:maxLines="1"/>
 
     </RelativeLayout>
 

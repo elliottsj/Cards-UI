@@ -7,6 +7,7 @@ import android.content.Context;
  *
  * @author Aidan Follestad (afollestad)
  */
+@SuppressWarnings("UnusedDeclaration")
 public class CardCenteredHeader extends Card {
 
     public CardCenteredHeader(String title) {

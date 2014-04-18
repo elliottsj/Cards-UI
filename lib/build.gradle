@@ -18,6 +18,10 @@ android {
     }
 }
 
+dependencies {
+    // compile 'com.afollestad.silk:library:1.0-SNAPSHOT@aar'
+}
+
 apply plugin: 'maven'
 uploadArchives {
     repositories {
@@ -26,8 +30,6 @@ uploadArchives {
         }
     }
 }
-task install(dependsOn: uploadArchives)
-
-dependencies {
-    compile 'com.afollestad.silk:library:1.0-SNAPSHOT@aar'
+task install(dependsOn: uploadArchives) {
+    description = "Installs .aar in the local maven repository"
 }
