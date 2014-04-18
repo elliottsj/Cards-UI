@@ -1,16 +1,10 @@
-Welcome
+Cards UI
 =============
 
 ![Screenshot](https://raw.githubusercontent.com/elliottsj/Cards-UI/master/images/device-2013-08-15-121417_framed.png)
 
-Dependencies
-=============
-1. Silk (http://github.com/afollestad/Silk)
-
 Getting Started
 =============
-Before the library will work, make sure you have `Silk` referenced as a dependency in both this library and your app. For best results, build Silk as a AAR file and install it to your local maven repository (see below).
-Otherwise, you will need to copy the `assets` folder from `Silk` to your app due to the fact that this library uses font resources.
 
 #### Importing
 
@@ -18,7 +12,7 @@ To use this library with your Android apps, you have to reference this project a
 
 #### Importing as AAR (recommended)
 
-This process was written with the assumption that you are using Android Studio 0.4.0, gradle 1.9+, and you have recent Android Build Tools 18.0.1. Other versions may work with some adaptations.
+This process was written with the assumption that you are using Android Studio 0.5.4, gradle 1.11+, and you have recent Android Build Tools 19.0.3. Other versions may work with some adaptations.
 
 You do not need to open this library in Android Studio to build and include it in your project.
 
@@ -46,14 +40,6 @@ If you are including Cards UI directly in your app:
 * Add `mavenLocal()` to the `repositories` block and `compile 'com.afollestad.cardsui:library:1.0-SNAPSHOT` to the `dependencies` block. Your file will look something like this:
 
 ```
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
-    }
-}
 apply plugin: 'android'
 
 repositories {
@@ -62,23 +48,23 @@ repositories {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.0.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 18
+        minSdkVersion 16
+        targetSdkVersion 19
     }
 }
 
 dependencies {
-	compile 'com.afollestad.cardsui:library:1.0-SNAPSHOT'
+    compile 'com.afollestad.cardsui:lib:1.0-SNAPSHOT@aar'
 }
-
 ```
+
 * At the root of your project directory, run `./gradlew build`. You should see `:<ProjectName>:prepareComAfollestadCardsUILibrary10SNAPSHOTLibrary` or something like it in the output and `BUILD SUCCESSFUL` at the end.
 * You're done. You can now use Cards UI in your app.
 
 Tutorial
 ============
-Tutorials are available on this project's wiki pages.
+Tutorials are available on this project's [wiki pages](https://github.com/elliottsj/Cards-UI/wiki).
