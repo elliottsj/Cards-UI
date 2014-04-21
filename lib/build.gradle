@@ -18,10 +18,6 @@ android {
     }
 }
 
-dependencies {
-    // compile 'com.afollestad.silk:library:1.0-SNAPSHOT@aar'
-}
-
 apply plugin: 'maven'
 uploadArchives {
     repositories {
