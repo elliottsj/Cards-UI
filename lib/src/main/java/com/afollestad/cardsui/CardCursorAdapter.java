@@ -73,11 +73,11 @@ public abstract class CardCursorAdapter<ItemType extends CardBase> extends CardA
             return null;
         }
         clear();
-        newCursor.moveToFirst();
-        populateArray(newCursor);
         Cursor oldCursor = mCursor;
         mCursor = newCursor;
         if (newCursor != null) {
+            newCursor.moveToFirst();
+            populateArray(newCursor);
             // notify the observers about the new cursor
             notifyDataSetChanged();
         } else {
