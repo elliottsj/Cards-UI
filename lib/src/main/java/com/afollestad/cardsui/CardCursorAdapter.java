@@ -67,11 +67,13 @@ public abstract class CardCursorAdapter<ItemType extends CardBase> extends CardA
      * If the given new Cursor is the same instance is the previously set
      * Cursor, null is also returned.
      */
+    @SuppressWarnings("ConstantConditions")
     public Cursor swapCursor(Cursor newCursor) {
         if (newCursor == mCursor) {
             return null;
         }
         clear();
+        newCursor.moveToFirst();
         populateArray(newCursor);
         Cursor oldCursor = mCursor;
         mCursor = newCursor;
