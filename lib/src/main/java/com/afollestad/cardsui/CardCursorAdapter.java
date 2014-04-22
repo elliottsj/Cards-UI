@@ -71,6 +71,7 @@ public abstract class CardCursorAdapter<ItemType extends CardBase> extends CardA
         if (newCursor == mCursor) {
             return null;
         }
+        clear();
         populateArray(newCursor);
         Cursor oldCursor = mCursor;
         mCursor = newCursor;
