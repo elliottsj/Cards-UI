@@ -1,8 +1,7 @@
 apply plugin: 'android-library'
-
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+    buildToolsVersion '19.0.3'
 
     defaultConfig {
         minSdkVersion 16
@@ -17,7 +16,6 @@ android {
         }
     }
 }
-
 apply plugin: 'maven'
 uploadArchives {
     repositories {
